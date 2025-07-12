@@ -36,8 +36,9 @@ Preferred communication style: Simple, everyday language.
 ### Data Layer
 - **Schema Definition**: Shared TypeScript types and Zod schemas in `/shared/schema.ts`
 - **Database ORM**: Drizzle ORM configured for PostgreSQL
+- **Database Storage**: PostgreSQL database with persistent storage via DatabaseStorage class
 - **Validation**: Zod schemas for runtime type checking and form validation
-- **Storage Interface**: Abstract storage interface with in-memory implementation for development
+- **Storage Interface**: Abstract storage interface with PostgreSQL database implementation
 
 ### API Layer
 - **RESTful API**: Express routes for teacher CRUD operations
