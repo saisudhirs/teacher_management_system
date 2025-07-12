@@ -1,0 +1,120 @@
+Teacher Management Interface Modernization Task 
+
+Task Overview 
+
+You are tasked with modernizing the teacher management interface shown in the provided screenshot as part of the frontend assessment. 
+
+Objective 
+
+Create a modern, responsive, and user-friendly teacher management interface that improves upon the current design with contemporary UI/UX practices. 
+
+Technical Requirements 
+
+Tech Stack (Mandatory) 
+
+TypeScript - For type safety and better development experience 
+
+Next.js - React framework for production-ready applications 
+
+Tailwind CSS - For styling and responsive design 
+
+Additional Requirements 
+
+Responsive design (mobile-first approach) 
+
+Clean, modern UI following current design trends 
+
+Proper TypeScript implementation with type definitions 
+
+Component-based architecture 
+
+Accessibility considerations (WCAG guidelines) 
+
+Task Instructions 
+
+1. Repository Setup 
+
+Create a new repository on your GitHub account 
+
+Initialize with Next.js, TypeScript, and Tailwind CSS 
+
+Include a comprehensive README with setup instructions 
+
+2. UI Development 
+
+Build a modernized UPI interface based on the provided mockup/design 
+
+Focus on user experience and visual appeal 
+
+Implement responsive design for all screen sizes 
+
+Add smooth transitions and micro-interactions 
+
+3. Key Features to Implement 
+
+Payment interface with modern design patterns 
+
+Form validation and error handling 
+
+Loading states and success/error feedback 
+
+Mobile-optimized touch interactions 
+
+Clean typography and spacing 
+
+4. Code Quality Standards 
+
+Use TypeScript interfaces and types throughout 
+
+Follow React best practices and hooks 
+
+Implement proper component structure 
+
+Add comments for complex logic 
+
+Ensure code is clean and maintainable 
+
+Deliverables 
+
+Complete codebase in your own GitHub repository 
+
+Live demo deployed on Vercel/Netlify or similar platform 
+
+Loom video (5-10 minutes) explaining:  
+
+Code walkthrough and architecture 
+
+Key features and functionality demonstration 
+
+Design decisions and implementation approach 
+
+Live output showcase 
+
+Documentation including:  
+
+Setup and installation instructions 
+
+Feature explanations 
+
+Design decisions and rationale 
+
+Any assumptions made 
+
+  
+
+Submission Guidelines 
+
+Complete the task in your own repository 
+
+Share the repository link with the team 
+
+Include the live demo URL in your README 
+
+Submit your Loom video link in the README file 
+
+Ensure all code is properly committed and pushed 
+
+image
+ 
+
+ 
