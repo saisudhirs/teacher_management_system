@@ -119,7 +119,7 @@ export class MemStorage implements IStorage {
 
   async createTeacher(insertTeacher: InsertTeacher): Promise<Teacher> {
     const id = this.currentTeacherId++;
-    const teacher: Teacher = { ...insertTeacher, id };
+    const teacher: Teacher = { ...insertTeacher, id, avatar: insertTeacher.avatar || null };
     this.teachers.set(id, teacher);
     return teacher;
   }

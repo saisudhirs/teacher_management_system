@@ -17,6 +17,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type { Teacher } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import ViewTeacherModal from "./view-teacher-modal";
+import EditTeacherModal from "./edit-teacher-modal";
 
 interface TeacherCardProps {
   teacher: Teacher;
@@ -24,6 +26,8 @@ interface TeacherCardProps {
 
 export default function TeacherCard({ teacher }: TeacherCardProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [viewTeacher, setViewTeacher] = useState<Teacher | null>(null);
+  const [editTeacher, setEditTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -108,10 +112,20 @@ export default function TeacherCard({ teacher }: TeacherCardProps) {
           </div>
 
           <div className="mt-4 flex justify-end space-x-3">
-            <Button variant="outline" size="sm" className="text-primary">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-primary"
+              onClick={() => setViewTeacher(teacher)}
+            >
               View
             </Button>
-            <Button variant="outline" size="sm" className="text-yellow-600">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-yellow-600"
+              onClick={() => setEditTeacher(teacher)}
+            >
               Edit
             </Button>
             <Button 
@@ -145,6 +159,18 @@ export default function TeacherCard({ teacher }: TeacherCardProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ViewTeacherModal 
+        isOpen={viewTeacher !== null} 
+        onClose={() => setViewTeacher(null)} 
+        teacher={viewTeacher} 
+      />
+      
+      <EditTeacherModal 
+        isOpen={editTeacher !== null} 
+        onClose={() => setEditTeacher(null)} 
+        teacher={editTeacher} 
+      />
     </>
   );
 }

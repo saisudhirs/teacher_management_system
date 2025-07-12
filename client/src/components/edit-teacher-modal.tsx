@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,16 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { insertTeacherSchema, type InsertTeacher } from "@shared/schema";
+import { updateTeacherSchema, type UpdateTeacher, type Teacher } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
 import { X } from "lucide-react";
 
-interface AddTeacherModalProps {
+interface EditTeacherModalProps {
   isOpen: boolean;
   onClose: () => void;
+  teacher: Teacher | null;
 }
 
-export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProps) {
+export default function EditTeacherModal({ isOpen, onClose, teacher }: EditTeacherModalProps) {
   const [subjectsInput, setSubjectsInput] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -31,8 +32,8 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
     },
   });
 
-  const form = useForm<InsertTeacher>({
-    resolver: zodResolver(insertTeacherSchema),
+  const form = useForm<UpdateTeacher>({
+    resolver: zodResolver(updateTeacherSchema),
     defaultValues: {
       firstName: "",
       lastName: "",
@@ -47,9 +48,28 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
     },
   });
 
-  const createMutation = useMutation({
-    mutationFn: async (data: InsertTeacher) => {
-      await apiRequest("POST", "/api/teachers", data);
+  useEffect(() => {
+    if (teacher) {
+      form.reset({
+        id: teacher.id,
+        firstName: teacher.firstName,
+        lastName: teacher.lastName,
+        email: teacher.email,
+        phone: teacher.phone,
+        employeeId: teacher.employeeId,
+        department: teacher.department,
+        subjects: teacher.subjects,
+        experience: teacher.experience,
+        hireDate: teacher.hireDate,
+        status: teacher.status,
+      });
+      setSubjectsInput(teacher.subjects.join(", "));
+    }
+  }, [teacher, form]);
+
+  const updateMutation = useMutation({
+    mutationFn: async (data: UpdateTeacher) => {
+      await apiRequest("PUT", `/api/teachers/${data.id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/teachers"] });
@@ -57,28 +77,26 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
       queryClient.invalidateQueries({ queryKey: ["/api/departments"] });
       toast({
         title: "Success",
-        description: "Teacher added successfully",
+        description: "Teacher updated successfully",
       });
-      form.reset();
-      setSubjectsInput("");
-      onClose();
+      handleClose();
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to add teacher",
+        description: error.message || "Failed to update teacher",
         variant: "destructive",
       });
     },
   });
 
-  const onSubmit = (data: InsertTeacher) => {
+  const onSubmit = (data: UpdateTeacher) => {
     const subjects = subjectsInput
       .split(",")
       .map(s => s.trim())
       .filter(s => s.length > 0);
     
-    createMutation.mutate({
+    updateMutation.mutate({
       ...data,
       subjects,
     });
@@ -90,12 +108,14 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
     onClose();
   };
 
+  if (!teacher) return null;
+
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle>Add New Teacher</DialogTitle>
+            <DialogTitle>Edit Teacher</DialogTitle>
             <Button variant="ghost" size="icon" onClick={handleClose}>
               <X className="h-4 w-4" />
             </Button>
@@ -168,12 +188,8 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
                 id="employeeId"
                 {...form.register("employeeId")}
                 placeholder="TCH001"
+                disabled
               />
-              {form.formState.errors.employeeId && (
-                <p className="text-sm text-red-600 mt-1">
-                  {form.formState.errors.employeeId.message}
-                </p>
-              )}
             </div>
           </div>
 
@@ -189,13 +205,13 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map(dept => (
-                    <SelectItem key={`dept-${dept}`} value={dept}>{dept}</SelectItem>
+                    <SelectItem key={`edit-dept-${dept}`} value={dept}>{dept}</SelectItem>
                   ))}
-                  <SelectItem key="Mathematics" value="Mathematics">Mathematics</SelectItem>
-                  <SelectItem key="Science" value="Science">Science</SelectItem>
-                  <SelectItem key="English" value="English">English</SelectItem>
-                  <SelectItem key="History" value="History">History</SelectItem>
-                  <SelectItem key="Art" value="Art">Art</SelectItem>
+                  <SelectItem key="edit-Mathematics" value="Mathematics">Mathematics</SelectItem>
+                  <SelectItem key="edit-Science" value="Science">Science</SelectItem>
+                  <SelectItem key="edit-English" value="English">English</SelectItem>
+                  <SelectItem key="edit-History" value="History">History</SelectItem>
+                  <SelectItem key="edit-Art" value="Art">Art</SelectItem>
                 </SelectContent>
               </Select>
               {form.formState.errors.department && (
@@ -222,17 +238,35 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="subjects">Subjects Taught</Label>
-            <Input
-              id="subjects"
-              value={subjectsInput}
-              onChange={(e) => setSubjectsInput(e.target.value)}
-              placeholder="e.g., Algebra, Calculus (comma-separated)"
-            />
-            <p className="text-sm text-gray-500 mt-1">
-              Enter subjects separated by commas
-            </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="subjects">Subjects Taught</Label>
+              <Input
+                id="subjects"
+                value={subjectsInput}
+                onChange={(e) => setSubjectsInput(e.target.value)}
+                placeholder="e.g., Algebra, Calculus (comma-separated)"
+              />
+              <p className="text-sm text-gray-500 mt-1">
+                Enter subjects separated by commas
+              </p>
+            </div>
+            <div>
+              <Label htmlFor="status">Status</Label>
+              <Select
+                value={form.watch("status")}
+                onValueChange={(value) => form.setValue("status", value as "active" | "on_leave" | "inactive")}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="on_leave">On Leave</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div>
@@ -256,9 +290,9 @@ export default function AddTeacherModal({ isOpen, onClose }: AddTeacherModalProp
             <Button 
               type="submit" 
               className="bg-primary hover:bg-primary/90"
-              disabled={createMutation.isPending}
+              disabled={updateMutation.isPending}
             >
-              {createMutation.isPending ? "Adding..." : "Add Teacher"}
+              {updateMutation.isPending ? "Updating..." : "Update Teacher"}
             </Button>
           </div>
         </form>

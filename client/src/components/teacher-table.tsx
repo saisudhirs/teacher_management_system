@@ -18,6 +18,8 @@ import { Eye, Edit, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Teacher } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
+import ViewTeacherModal from "./view-teacher-modal";
+import EditTeacherModal from "./edit-teacher-modal";
 
 interface TeacherTableProps {
   teachers: Teacher[];
@@ -25,6 +27,8 @@ interface TeacherTableProps {
 
 export default function TeacherTable({ teachers }: TeacherTableProps) {
   const [deleteTeacherId, setDeleteTeacherId] = useState<number | null>(null);
+  const [viewTeacher, setViewTeacher] = useState<Teacher | null>(null);
+  const [editTeacher, setEditTeacher] = useState<Teacher | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -142,6 +146,7 @@ export default function TeacherTable({ teachers }: TeacherTableProps) {
                         variant="ghost"
                         size="icon"
                         className="text-primary hover:text-primary/80"
+                        onClick={() => setViewTeacher(teacher)}
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -149,6 +154,7 @@ export default function TeacherTable({ teachers }: TeacherTableProps) {
                         variant="ghost"
                         size="icon"
                         className="text-yellow-600 hover:text-yellow-800"
+                        onClick={() => setEditTeacher(teacher)}
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
@@ -188,6 +194,18 @@ export default function TeacherTable({ teachers }: TeacherTableProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ViewTeacherModal 
+        isOpen={viewTeacher !== null} 
+        onClose={() => setViewTeacher(null)} 
+        teacher={viewTeacher} 
+      />
+      
+      <EditTeacherModal 
+        isOpen={editTeacher !== null} 
+        onClose={() => setEditTeacher(null)} 
+        teacher={editTeacher} 
+      />
     </>
   );
 }
